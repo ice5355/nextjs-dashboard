@@ -3,11 +3,17 @@ import {
   ClockIcon,
   UserGroupIcon,
   InboxIcon,
+  GlobeAltIcon,
+  PuzzlePieceIcon,
+  TagIcon,
 } from '@heroicons/react/24/outline';
 import { lusitana } from '@/app/ui/fonts';
-import { fetchCardData } from '@/app/lib/data';
+import { fetchSiteGameCategoryData } from '@/app/lib/datas/dashboard';
 
 const iconMap = {
+  sites: GlobeAltIcon,
+  games: PuzzlePieceIcon,
+  categories: TagIcon,
   collected: BanknotesIcon,
   customers: UserGroupIcon,
   pending: ClockIcon,
@@ -16,24 +22,16 @@ const iconMap = {
 
 export default async function CardWrapper() {
   const {
-    numberOfInvoices,
-    numberOfCustomers,
-    totalPaidInvoices,
-    totalPendingInvoices,
-  } = await fetchCardData();
+    numberOfSites,
+    numberOfGames,
+    numberOfCategories,
+  } = await fetchSiteGameCategoryData();
 
   return (
     <>
-      {/* NOTE: Uncomment this code in Chapter 9 */}
-
-      <Card title="Collected" value={totalPaidInvoices} type="collected" />
-      <Card title="Pending" value={totalPendingInvoices} type="pending" />
-      <Card title="Total Invoices" value={numberOfInvoices} type="invoices" />
-      <Card
-        title="Total Customers"
-        value={numberOfCustomers}
-        type="customers"
-      />
+      <Card title="网站总数" value={numberOfSites} type="sites" />
+      <Card title="游戏总数" value={numberOfGames} type="games" />
+      <Card title="分类总数" value={numberOfCategories} type="categories" />
     </>
   );
 }
@@ -45,7 +43,7 @@ export function Card({
 }: {
   title: string;
   value: number | string;
-  type: 'invoices' | 'customers' | 'pending' | 'collected';
+  type: 'invoices' | 'customers' | 'pending' | 'collected' | 'sites' | 'games' | 'categories';
 }) {
   const Icon = iconMap[type];
 
