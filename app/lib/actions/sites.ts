@@ -5,6 +5,8 @@ import db from '@/app/lib/db';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+export const runtime = 'edge';
+
 const SiteFormSchema = z.object({
   id: z.string().optional(),
   name: z.string({

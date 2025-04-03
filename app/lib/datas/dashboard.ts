@@ -1,5 +1,6 @@
 import db from '@/app/lib/db';
 
+export const runtime = 'edge';
 // 缓存相关变量
 type DashboardStats = {
   numberOfSites: number;

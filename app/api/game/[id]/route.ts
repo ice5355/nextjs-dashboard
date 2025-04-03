@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/app/lib/db';
 
+export const runtime = 'edge';
 // 处理GET请求，根据游戏ID获取游戏详细信息
 export async function GET(
   request: NextRequest,

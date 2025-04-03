@@ -7,6 +7,7 @@ import { fetchCategoriesPages } from '@/app/lib/datas/categories';
 import Pagination from '@/app/ui/pagination';
 import { CategoryTableSkeleton } from '@/app/ui/categories/skeletons';
 
+export const runtime = 'edge';
 export default async function CategoriesPage(props: {
   searchParams?: Promise<{
     query?: string;

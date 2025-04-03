@@ -3,6 +3,7 @@ import { fetchSites } from '@/app/lib/datas/sites';
 import { fetchCategories } from '@/app/lib/datas/categories';
 import Breadcrumbs from '@/app/ui/breadcrumbs';
 
+export const runtime = 'edge';
 export default async function CreateGamePage() {
   const [sites, categories] = await Promise.all([
     fetchSites(),

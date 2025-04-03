@@ -1,6 +1,8 @@
 import db from '@/app/lib/db';
 import { Site } from '../definitions';
 
+export const runtime = 'edge';
+
 export async function fetchAllRelations() {
   try {
     const [siteGamesResult] = await db.query(`

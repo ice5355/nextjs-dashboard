@@ -7,6 +7,7 @@ import { fetchGamesPages } from '@/app/lib/datas/games';
 import Pagination from '@/app/ui/pagination';
 import { GameTableSkeleton } from '@/app/ui/games/skeletons';
 
+export const runtime = 'edge';
 export default async function GamesPage(props: {
   searchParams?: Promise<{
     query?: string;

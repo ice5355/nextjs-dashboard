@@ -1,5 +1,6 @@
 import mysql from 'mysql2/promise'; // 使用 Promise 版本
 
+export const runtime = 'edge';
 // 创建MySQL连接池
 const pool = mysql.createPool({
   host: process.env.MYSQL_HOST,

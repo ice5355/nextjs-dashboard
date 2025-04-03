@@ -1,6 +1,8 @@
 import db from '@/app/lib/db';
 import { Game, Category, Site } from '../definitions';
 
+export const runtime = 'edge';
+
 export async function fetchGames() {
   try {
     const [data] = await db.query(`

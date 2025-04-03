@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import db from '@/app/lib/db';
 import {users, sites, categories, games, siteGames, gameCategories } from '../lib/placeholder-data';
 
-
+export const runtime = 'edge';
 async function seedUsers() {
   await db.query(`
     CREATE TABLE IF NOT EXISTS users (

@@ -3,7 +3,7 @@ import { lusitana } from '@/app/ui/fonts';
 import { Suspense } from 'react';
 import { CardsSkeleton } from '@/app/ui/skeletons';
 
- 
+export const runtime = 'edge';
 export default async function Page() {
   return (
     <main>

@@ -4,9 +4,9 @@
     "build": "next build",
     "dev": "next dev --turbopack",
     "start": "next start",
-    "preview": "opennextjs-cloudflare && wrangler dev",
-    "deploy": "opennextjs-cloudflare && wrangler deploy",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+    "pages:build": "npx @cloudflare/next-on-pages",
+    "preview": "npm run pages:build && wrangler pages dev",
+    "deploy": "npm run pages:build && wrangler pages deploy"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.717.0",
@@ -28,7 +28,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^0.6.6",
+    "@cloudflare/next-on-pages": "^1.13.12",
     "@types/bcrypt": "^5.0.2",
     "@types/node": "22.10.7",
     "@types/react": "19.0.7",

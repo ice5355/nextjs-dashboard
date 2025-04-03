@@ -6,6 +6,8 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { generatePresignedUrl } from '../r2';
 
+export const runtime = 'edge';
+
 const GameFormSchema = z.object({
   id: z.string().optional(),
   name: z.string({

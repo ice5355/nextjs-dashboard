@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/app/lib/db';
 
+export const runtime = 'edge';
 // 处理GET请求，根据网站ID获取按分类组织的游戏列表
 export async function GET(
   request: NextRequest,

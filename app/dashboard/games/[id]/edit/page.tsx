@@ -5,6 +5,7 @@ import { GameForm } from '@/app/ui/games/game-form';
 import { notFound } from 'next/navigation';
 import Breadcrumbs from '@/app/ui/breadcrumbs';
 
+export const runtime = 'edge';
 export default async function EditGamePage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const id = parseInt(params.id);

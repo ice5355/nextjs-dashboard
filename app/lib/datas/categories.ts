@@ -1,6 +1,8 @@
 import db from '@/app/lib/db';
 import { Category } from '../definitions';
 
+export const runtime = 'edge';
+
 const ITEMS_PER_PAGE = 10;
 
 export async function fetchCategories() {

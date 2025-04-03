@@ -2,6 +2,7 @@ import { fetchGames } from '@/app/lib/datas/games';
 import { SiteForm } from '@/app/ui/sites/sites-form';
 import Breadcrumbs from '@/app/ui/breadcrumbs';
 
+export const runtime = 'edge';
 export default async function CreateSitePage() {
   const games = await fetchGames();
 

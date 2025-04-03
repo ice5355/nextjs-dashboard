@@ -2,6 +2,7 @@ import db from '@/app/lib/db';
 import { Site } from '../definitions';
 
 const ITEMS_PER_PAGE = 10;
+export const runtime = 'edge';
 
 export async function fetchSites() {
   try {

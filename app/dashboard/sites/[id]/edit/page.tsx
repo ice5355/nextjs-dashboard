@@ -4,6 +4,7 @@ import { SiteForm } from '@/app/ui/sites/sites-form';
 import Breadcrumbs from '@/app/ui/breadcrumbs';
 import { notFound } from 'next/navigation';
 
+export const runtime = 'edge';
 export default async function EditSitePage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const id = parseInt(params.id);

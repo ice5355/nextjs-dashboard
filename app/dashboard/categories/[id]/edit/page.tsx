@@ -4,6 +4,7 @@ import CategoryForm from '@/app/ui/categories/category-form';
 import { notFound } from 'next/navigation';
 import Breadcrumbs from '@/app/ui/breadcrumbs';
 
+export const runtime = 'edge';
 export default async function EditCategoryPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const id = parseInt(params.id);

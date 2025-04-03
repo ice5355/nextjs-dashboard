@@ -2,6 +2,7 @@ import { fetchGames } from '@/app/lib/datas/games';
 import CategoryForm from '@/app/ui/categories/category-form';
 import Breadcrumbs from '@/app/ui/breadcrumbs';
 
+export const runtime = 'edge';
 export default async function CreateCategoryPage() {
   const games = await fetchGames();
 

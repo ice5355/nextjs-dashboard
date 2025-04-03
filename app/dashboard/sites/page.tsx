@@ -7,6 +7,7 @@ import { fetchSitesPages } from '@/app/lib/datas/sites';
 import Pagination from '@/app/ui/pagination';
 import { SiteTableSkeleton } from '@/app/ui/sites/skeletons';
 
+export const runtime = 'edge';
 export default async function SitesPage(props: {
   searchParams?: Promise<{
     query?: string;
