@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import postgres from 'postgres';
-
-// 初始化数据库连接
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
+import db from '@/app/lib/db';
 
 // 处理GET请求，根据网站ID获取按分类组织的游戏列表
 export async function GET(
@@ -26,14 +23,15 @@ export async function GET(
     }
 
     // 查询网站基本信息
-    const sites = await sql`
-      SELECT id, name, url
+    const [sites] = await db.query(
+      `SELECT id, name, url
       FROM sites
-      WHERE id = ${siteId}
-    `;
+      WHERE id = ?`,
+      [siteId]
+    );
 
     // 如果网站不存在，返回404错误
-    if (sites.length === 0) {
+    if ((sites as any[]).length === 0) {
       return NextResponse.json(
         { 
           status: 404,
@@ -43,11 +41,11 @@ export async function GET(
       );
     }
 
-    const site = sites[0];
+    const site = (sites as any[])[0];
 
     // 获取该网站关联的所有游戏及其分类信息
-    const gameCategories = await sql`
-      SELECT 
+    const [gameCategories] = await db.query(
+      `SELECT 
         g.id as game_id, 
         g.name as game_name, 
         g.icon_url, 
@@ -56,17 +54,19 @@ export async function GET(
         g.details,
         sg.weight,
         c.id as category_id,
-        c.category_name
+        c.name,
+        c.chinese_name
       FROM games g
       JOIN site_games sg ON g.id = sg.game_id
       JOIN game_categories gc ON g.id = gc.game_id
       JOIN categories c ON gc.category_id = c.id
-      WHERE sg.site_id = ${siteId}
-      ORDER BY c.id ASC, sg.weight DESC
-    `;
+      WHERE sg.site_id = ?
+      ORDER BY c.id ASC, sg.weight DESC`,
+      [siteId]
+    );
 
     // 如果没有找到任何游戏或分类，返回空列表
-    if (gameCategories.length === 0) {
+    if ((gameCategories as any[]).length === 0) {
       return NextResponse.json({
         status: 200,
         error: null,
@@ -91,8 +91,22 @@ export async function GET(
       weight: number;
     };
     
+    // 定义数据库返回的游戏分类项目类型
+    type GameCategoryItem = {
+      game_id: number;
+      game_name: string;
+      icon_url: string | null;
+      game_url: string | null;
+      description: string | null;
+      details: string | null;
+      weight: number;
+      category_id: number;
+      name: string;
+      chinese_name: string;
+    };
+    
     // 遍历结果集，按分类分组
-    gameCategories.forEach(item => {
+    (gameCategories as GameCategoryItem[]).forEach(item => {
       // 创建游戏对象
       const game: Game = {
         id: item.game_id,
@@ -104,17 +118,21 @@ export async function GET(
         weight: item.weight
       };
       
+      // 使用中文名称作为Map的键
+      const mapKey = item.chinese_name;
+      
       // 如果分类不存在于Map中，则创建
-      if (!categoriesMap.has(item.category_name)) {
-        categoriesMap.set(item.category_name, {
+      if (!categoriesMap.has(mapKey)) {
+        categoriesMap.set(mapKey, {
           id: item.category_id,
-          name: item.category_name,
+          name: item.name,
+          chinese_name: item.chinese_name,
           games: []
         });
       }
       
-      // 检查这个游戏是否已经在该分类的games数组中
-      const category = categoriesMap.get(item.category_name);
+      // 获取分类并添加游戏
+      const category = categoriesMap.get(mapKey);
       const gameExists = category.games.some((g: Game) => g.id === game.id);
       
       if (!gameExists) {

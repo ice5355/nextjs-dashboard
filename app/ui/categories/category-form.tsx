@@ -41,21 +41,42 @@ export default function CategoryForm({
       {category?.id && <input type="hidden" name="id" value={category.id} />}
       
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
-        {/* 分类名称 */}
+        {/* 英文分类名称 */}
         <div className="mb-4">
-          <label htmlFor="category_name" className="mb-2 block text-sm font-medium">
-            分类名称
+          <label htmlFor="name" className="mb-2 block text-sm font-bold">
+            英文分类名称
           </label>
           <input
-            id="category_name"
-            name="category_name"
-            defaultValue={category?.category_name}
+            id="name"
+            name="name"
+            defaultValue={category?.name}
             className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
-            placeholder="输入分类名称"
+            placeholder="输入英文分类名称"
           />
-          {state.errors?.category_name && (
+          {state.errors?.name && (
             <div className="mt-2 text-sm text-red-500">
-              {state.errors.category_name.map((error: string) => (
+              {state.errors.name.map((error: string) => (
+                <p key={error}>{error}</p>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 中文分类名称 */}
+        <div className="mb-4">
+          <label htmlFor="chinese_name" className="mb-2 block text-sm font-bold">
+            中文分类名称
+          </label>
+          <input
+            id="chinese_name"
+            name="chinese_name"
+            defaultValue={category?.chinese_name}
+            className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
+            placeholder="输入中文分类名称"
+          />
+          {state.errors?.chinese_name && (
+            <div className="mt-2 text-sm text-red-500">
+              {state.errors.chinese_name.map((error: string) => (
                 <p key={error}>{error}</p>
               ))}
             </div>
@@ -65,7 +86,7 @@ export default function CategoryForm({
         {/* 关联游戏 */}
         {games.length > 0 && (
           <div className="mb-4">
-            <label className="mb-2 block text-sm font-medium">
+            <label className="mb-2 block text-sm font-bold">
               关联游戏
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

@@ -45,7 +45,7 @@ export function GameForm({
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* 游戏名称 */}
         <div className="mb-4">
-          <label htmlFor="name" className="mb-2 block text-sm font-medium">
+          <label htmlFor="name" className="mb-2 block text-sm font-bold">
             名称
           </label>
           <input
@@ -68,7 +68,7 @@ export function GameForm({
 
         {/* 游戏图标上传 */}
         <div className="mb-4">
-          <label htmlFor="icon_url" className="mb-2 block text-sm font-medium">
+          <label htmlFor="icon_url" className="mb-2 block text-sm font-bold">
             游戏图标
           </label>
           <div className="flex items-start gap-4">
@@ -93,7 +93,7 @@ export function GameForm({
 
         {/* 游戏链接 */}
         <div className="mb-4">
-          <label htmlFor="game_url" className="mb-2 block text-sm font-medium">
+          <label htmlFor="game_url" className="mb-2 block text-sm font-bold">
             游戏链接
           </label>
           <input
@@ -116,7 +116,7 @@ export function GameForm({
 
         {/* 游戏描述 */}
         <div className="mb-4">
-          <label htmlFor="description" className="mb-2 block text-sm font-medium">
+          <label htmlFor="description" className="mb-2 block text-sm font-bold">
             描述
           </label>
           <textarea
@@ -139,7 +139,7 @@ export function GameForm({
 
         {/* 游戏详情 */}
         <div className="mb-4">
-          <label htmlFor="details" className="mb-2 block text-sm font-medium">
+          <label htmlFor="details" className="mb-2 block text-sm font-bold">
             详情
           </label>
           <textarea
@@ -162,7 +162,7 @@ export function GameForm({
 
         {/* 关联网站 */}
         <div className="mb-4">
-          <label className="mb-2 block text-sm font-medium">
+          <label className="mb-2 block text-sm font-bold">
             关联网站
           </label>
           <div className="space-y-3">
@@ -178,6 +178,7 @@ export function GameForm({
                     defaultChecked={!!gameSite}
                     className="h-4 w-4 rounded border-gray-300"
                   />
+
                   <label htmlFor={`site-${site.id}`} className="text-sm font-medium">
                     {site.name}
                   </label>
@@ -196,7 +197,7 @@ export function GameForm({
 
         {/* 关联分类 */}
         <div className="mb-4">
-          <label className="mb-2 block text-sm font-medium">
+          <label className="mb-2 block text-sm font-bold">
             关联分类
           </label>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -211,7 +212,7 @@ export function GameForm({
                   className="h-4 w-4 rounded border-gray-300"
                 />
                 <label htmlFor={`category-${category.id}`} className="text-sm">
-                  {category.category_name}
+                  {category.chinese_name}
                 </label>
               </div>
             ))}

@@ -1,237 +1,182 @@
 import bcrypt from 'bcrypt';
-import postgres from 'postgres';
-import { invoices, customers, revenue, users, sites, categories, games, siteGames, gameCategories } from '../lib/placeholder-data';
+import db from '@/app/lib/db';
+import {users, sites, categories, games, siteGames, gameCategories } from '../lib/placeholder-data';
 
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
-// async function seedUsers() {
-//   await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-//   await sql`
-//     CREATE TABLE IF NOT EXISTS users (
-//       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-//       name VARCHAR(255) NOT NULL,
-//       email TEXT NOT NULL UNIQUE,
-//       password TEXT NOT NULL
-//     );
-//   `;
+async function seedUsers() {
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      name VARCHAR(255) NOT NULL,
+      email TEXT NOT NULL,
+      password TEXT NOT NULL,
+      UNIQUE KEY unique_email (email(191))
+    )
+  `);
 
-//   const insertedUsers = await Promise.all(
-//     users.map(async (user) => {
-//       const hashedPassword = await bcrypt.hash(user.password, 10);
-//       return sql`
-//         INSERT INTO users (id, name, email, password)
-//         VALUES (${user.id}, ${user.name}, ${user.email}, ${hashedPassword})
-//         ON CONFLICT (id) DO NOTHING;
-//       `;
-//     }),
-//   );
+  for (const user of users) {
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    await db.query(
+      `INSERT INTO users (id, name, email, password)
+      VALUES (?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE id=id`,
+      [user.id, user.name, user.email, hashedPassword]
+    );
+  }
 
-//   return insertedUsers;
-// }
+  return { success: true };
+}
 
-// async function seedInvoices() {
-//   await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-
-//   await sql`
-//     CREATE TABLE IF NOT EXISTS invoices (
-//       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-//       customer_id UUID NOT NULL,
-//       amount INT NOT NULL,
-//       status VARCHAR(255) NOT NULL,
-//       date DATE NOT NULL
-//     );
-//   `;
-
-//   const insertedInvoices = await Promise.all(
-//     invoices.map(
-//       (invoice) => sql`
-//         INSERT INTO invoices (customer_id, amount, status, date)
-//         VALUES (${invoice.customer_id}, ${invoice.amount}, ${invoice.status}, ${invoice.date})
-//         ON CONFLICT (id) DO NOTHING;
-//       `,
-//     ),
-//   );
-
-//   return insertedInvoices;
-// }
-
-// async function seedCustomers() {
-//   await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-
-//   await sql`
-//     CREATE TABLE IF NOT EXISTS customers (
-//       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-//       name VARCHAR(255) NOT NULL,
-//       email VARCHAR(255) NOT NULL,
-//       image_url VARCHAR(255) NOT NULL
-//     );
-//   `;
-
-//   const insertedCustomers = await Promise.all(
-//     customers.map(
-//       (customer) => sql`
-//         INSERT INTO customers (id, name, email, image_url)
-//         VALUES (${customer.id}, ${customer.name}, ${customer.email}, ${customer.image_url})
-//         ON CONFLICT (id) DO NOTHING;
-//       `,
-//     ),
-//   );
-
-//   return insertedCustomers;
-// }
-
-// async function seedRevenue() {
-//   await sql`
-//     CREATE TABLE IF NOT EXISTS revenue (
-//       month VARCHAR(4) NOT NULL UNIQUE,
-//       revenue INT NOT NULL
-//     );
-//   `;
-
-//   const insertedRevenue = await Promise.all(
-//     revenue.map(
-//       (rev) => sql`
-//         INSERT INTO revenue (month, revenue)
-//         VALUES (${rev.month}, ${rev.revenue})
-//         ON CONFLICT (month) DO NOTHING;
-//       `,
-//     ),
-//   );
-
-//   return insertedRevenue;
-// }
 
 async function seedSites() {
-  await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-  await sql`
+  await db.query(`
     CREATE TABLE IF NOT EXISTS sites (
-      id SERIAL PRIMARY KEY,
+      id INT PRIMARY KEY AUTO_INCREMENT,
       name VARCHAR(255) NOT NULL,
       url VARCHAR(255) NOT NULL,
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  for (const site of sites) {
+    await db.query(
+      `INSERT INTO sites (id, name, url, created_at)
+      VALUES (?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE id=id`,
+      [site.id, site.name, site.url, site.created_at]
     );
-  `;
+  }
 
-  const insertedSites = await Promise.all(
-    sites.map(
-      (site) => sql`
-        INSERT INTO sites (id, name, url, created_at)
-        VALUES (${site.id}, ${site.name}, ${site.url}, ${site.created_at})
-        ON CONFLICT (id) DO NOTHING;
-      `,
-    ),
-  );
-
-  return insertedSites;
+  return { success: true };
 }
 
 async function seedCategories() {
-  await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-  await sql`
+  await db.query(`
     CREATE TABLE IF NOT EXISTS categories (
-      id SERIAL PRIMARY KEY,
-      category_name VARCHAR(255) NOT NULL
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      name VARCHAR(255) NOT NULL,
+      chinese_name VARCHAR(255) NOT NULL
+    )
+  `);
+
+  for (const category of categories) {
+    await db.query(
+      `INSERT INTO categories (id, name, chinese_name)
+      VALUES (?, ?, ?)
+      ON DUPLICATE KEY UPDATE name=VALUES(name), chinese_name=VALUES(chinese_name)`,
+      [category.id, category.name, category.chinese_name]
     );
-  `;
+  }
 
-  const insertedCategories = await Promise.all(
-    categories.map(
-      (category) => sql`
-        INSERT INTO categories (id, category_name)
-        VALUES (${category.id}, ${category.category_name})
-        ON CONFLICT (id) DO NOTHING;
-      `,
-    ),
-  );
-
-  return insertedCategories;
+  return { success: true };
 }
 
 async function seedGames() {
-  await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-  await sql`
+  await db.query(`
     CREATE TABLE IF NOT EXISTS games (
-      id SERIAL PRIMARY KEY,
+      id INT PRIMARY KEY AUTO_INCREMENT,
       name VARCHAR(255) NOT NULL,
       icon_url VARCHAR(255),
       game_url VARCHAR(255),
       description TEXT,
       details TEXT,
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  for (const game of games) {
+    await db.query(
+      `INSERT INTO games (id, name, icon_url, game_url, description, details, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE id=id`,
+      [game.id, game.name, game.icon_url, game.game_url, game.description, game.details, game.created_at]
     );
-  `;
+  }
 
-  const insertedGames = await Promise.all(
-    games.map(
-      (game) => sql`
-        INSERT INTO games (id, name, icon_url, game_url, description, details, created_at)
-        VALUES (${game.id}, ${game.name}, ${game.icon_url}, ${game.game_url}, ${game.description}, ${game.details}, ${game.created_at})
-        ON CONFLICT (id) DO NOTHING;
-      `,
-    ),
-  );
-
-  return insertedGames;
+  return { success: true };
 }
 
 async function seedSiteGames() {
-  await sql`
+  await db.query(`
     CREATE TABLE IF NOT EXISTS site_games (
-      site_id INTEGER REFERENCES sites(id),
-      game_id INTEGER REFERENCES games(id),
-      weight INTEGER NOT NULL,
-      PRIMARY KEY (site_id, game_id)
+      site_id INT,
+      game_id INT,
+      weight INT NOT NULL,
+      PRIMARY KEY (site_id, game_id),
+      FOREIGN KEY (site_id) REFERENCES sites(id),
+      FOREIGN KEY (game_id) REFERENCES games(id)
+    )
+  `);
+
+  for (const siteGame of siteGames) {
+    await db.query(
+      `INSERT INTO site_games (site_id, game_id, weight)
+      VALUES (?, ?, ?)
+      ON DUPLICATE KEY UPDATE weight=VALUES(weight)`,
+      [siteGame.site_id, siteGame.game_id, siteGame.weight]
     );
-  `;
+  }
 
-  const insertedSiteGames = await Promise.all(
-    siteGames.map(
-      (siteGame) => sql`
-        INSERT INTO site_games (site_id, game_id, weight)
-        VALUES (${siteGame.site_id}, ${siteGame.game_id}, ${siteGame.weight})
-        ON CONFLICT (site_id, game_id) DO NOTHING;
-      `,
-    ),
-  );
-
-  return insertedSiteGames;
+  return { success: true };
 }
 
 async function seedGameCategories() {
-  await sql`
+  await db.query(`
     CREATE TABLE IF NOT EXISTS game_categories (
-      game_id INTEGER REFERENCES games(id),
-      category_id INTEGER REFERENCES categories(id),
-      PRIMARY KEY (game_id, category_id)
+      game_id INT,
+      category_id INT,
+      PRIMARY KEY (game_id, category_id),
+      FOREIGN KEY (game_id) REFERENCES games(id),
+      FOREIGN KEY (category_id) REFERENCES categories(id)
+    )
+  `);
+
+  for (const gameCategory of gameCategories) {
+    await db.query(
+      `INSERT INTO game_categories (game_id, category_id)
+      VALUES (?, ?)
+      ON DUPLICATE KEY UPDATE game_id=game_id`,
+      [gameCategory.game_id, gameCategory.category_id]
     );
-  `;
+  }
 
-  const insertedGameCategories = await Promise.all(
-    gameCategories.map(
-      (gameCategory) => sql`
-        INSERT INTO game_categories (game_id, category_id)
-        VALUES (${gameCategory.game_id}, ${gameCategory.category_id})
-        ON CONFLICT (game_id, category_id) DO NOTHING;
-      `,
-    ),
-  );
-
-  return insertedGameCategories;
+  return { success: true };
 }
 
 export async function GET() {
   try {
-    await sql.begin(async (sql) => {
-      await seedSites();
-      await seedCategories();
-      await seedGames();
-      await seedSiteGames();
-      await seedGameCategories();
-    });
+    // 禁用外键检查以便能顺利删除表
+    await db.query('SET FOREIGN_KEY_CHECKS = 0');
+    
+    // 删除旧表 - 按照依赖关系的反向顺序删除
+    try {
+      // 先删除关联表
+      await db.query(`DROP TABLE IF EXISTS game_categories`);
+      await db.query(`DROP TABLE IF EXISTS site_games`);
+      
+      // 然后删除主表
+      await db.query(`DROP TABLE IF EXISTS games`);
+      await db.query(`DROP TABLE IF EXISTS categories`);
+      await db.query(`DROP TABLE IF EXISTS sites`);
+      await db.query(`DROP TABLE IF EXISTS users`);
+    } catch (error) {
+      console.warn('删除旧表失败，继续执行:', error);
+    }
+    
+    // 重新启用外键检查
+    await db.query('SET FOREIGN_KEY_CHECKS = 1');
+
+    // 直接执行种子函数，不使用显式事务
+    await seedUsers();
+    await seedSites();
+    await seedCategories();
+    await seedGames();
+    await seedSiteGames();
+    await seedGameCategories();
 
     return Response.json({ message: '数据库初始化成功' });
   } catch (error) {
     console.error('种子数据插入错误:', error);
-    return Response.json({ error: '数据库初始化失败' }, { status: 500 });
+    return Response.json({ error: '数据库初始化失败', details: String(error) }, { status: 500 });
   }
 }

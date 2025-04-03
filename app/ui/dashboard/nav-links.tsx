@@ -1,11 +1,9 @@
 'use client';
 
 import {
-  UserGroupIcon,
   HomeIcon,
-  DocumentDuplicateIcon,
+  ComputerDesktopIcon,
   GlobeAltIcon,
-  PuzzlePieceIcon,
   TagIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
@@ -17,7 +15,7 @@ import clsx from 'clsx';
 const links = [
   { name: '首页', href: '/dashboard', icon: HomeIcon },
   { name: '网站管理', href: '/dashboard/sites', icon: GlobeAltIcon },
-  { name: '游戏管理', href: '/dashboard/games', icon: PuzzlePieceIcon },
+  { name: '游戏管理', href: '/dashboard/games', icon: ComputerDesktopIcon },
   { name: '分类管理', href: '/dashboard/categories', icon: TagIcon },
 ];
 

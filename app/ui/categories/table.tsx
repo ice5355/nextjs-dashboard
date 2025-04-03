@@ -25,7 +25,7 @@ export default async function CategoriesTable({
                 <div className="flex items-center justify-between border-b pb-4">
                   <div>
                     <div className="mb-2 flex items-center">
-                      <p className="font-medium">{category.category_name}</p>
+                      <p className="font-medium">{category.chinese_name} ({category.name})</p>
                     </div>
                   </div>
                 </div>
@@ -51,6 +51,9 @@ export default async function CategoriesTable({
                 <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
                   分类名称
                 </th>
+                <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
+                  分类名称（英文）
+                </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   关联游戏数
                 </th>
@@ -67,7 +70,12 @@ export default async function CategoriesTable({
                 >
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex items-center gap-3">
-                      <p>{category.category_name}</p>
+                      <p>{category.chinese_name}</p>
+                    </div>
+                  </td>
+                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                    <div className="flex items-center gap-3">
+                      <p>{category.name}</p>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">

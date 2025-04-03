@@ -1,6 +1,4 @@
-import postgres from 'postgres';
-
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
+import db from '@/app/lib/db';
 
 // async function listInvoices() {
 // 	const data = await sql`
@@ -27,13 +25,13 @@ const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 // 获取所有游戏及其分类信息
 async function listGamesWithCategories() {
-  const data = await sql`
+  const [data] = await db.query(`
     SELECT 
       g.id,
       g.name,
       g.icon_url,
       g.description,
-      ARRAY_AGG(DISTINCT c.category_name) as categories,
+      GROUP_CONCAT(DISTINCT c.chinese_name) as categories,
       COUNT(DISTINCT s.id) as site_count,
       AVG(sg.weight) as avg_weight
     FROM games g
@@ -42,46 +40,43 @@ async function listGamesWithCategories() {
     LEFT JOIN site_games sg ON g.id = sg.game_id
     LEFT JOIN sites s ON sg.site_id = s.id
     GROUP BY g.id, g.name, g.icon_url, g.description
-    ORDER BY avg_weight DESC;
-  `;
+    ORDER BY avg_weight DESC
+  `);
   return data;
 }
 
 // 获取每个网站的热门游戏（按权重排序）
 async function listTopGamesPerSite() {
-  const data = await sql`
-    WITH RankedGames AS (
-      SELECT 
-        s.id as site_id,
-        s.name as site_name,
-        g.name as game_name,
-        sg.weight,
-        ROW_NUMBER() OVER (PARTITION BY s.id ORDER BY sg.weight DESC) as rank
-      FROM sites s
-      JOIN site_games sg ON s.id = sg.site_id
-      JOIN games g ON sg.game_id = g.id
-    )
-    SELECT *
-    FROM RankedGames
-    WHERE rank <= 3
-    ORDER BY site_id, weight DESC;
-  `;
+  // MySQL不支持PARTITION BY子句，所以我们需要使用子查询
+  const [data] = await db.query(`
+    SELECT s.id as site_id, s.name as site_name, g.name as game_name, sg.weight
+    FROM sites s
+    JOIN site_games sg ON s.id = sg.site_id
+    JOIN games g ON sg.game_id = g.id
+    WHERE (
+      SELECT COUNT(*) 
+      FROM site_games sg2
+      WHERE sg2.site_id = s.id AND sg2.weight > sg.weight
+    ) < 3
+    ORDER BY s.id, sg.weight DESC
+  `);
   return data;
 }
 
 // 获取每个分类下的游戏数量统计
 async function getCategoryStats() {
-  const data = await sql`
+  const [data] = await db.query(`
     SELECT 
-      c.category_name,
+      c.name,
+      c.chinese_name,
       COUNT(DISTINCT gc.game_id) as game_count,
       AVG(sg.weight) as avg_popularity
     FROM categories c
     LEFT JOIN game_categories gc ON c.id = gc.category_id
     LEFT JOIN site_games sg ON gc.game_id = sg.game_id
-    GROUP BY c.id, c.category_name
-    ORDER BY game_count DESC;
-  `;
+    GROUP BY c.id, c.name, c.chinese_name
+    ORDER BY game_count DESC
+  `);
   return data;
 }
 

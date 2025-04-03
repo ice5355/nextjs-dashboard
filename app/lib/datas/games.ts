@@ -1,15 +1,13 @@
-import postgres from 'postgres';
+import db from '@/app/lib/db';
 import { Game, Category, Site } from '../definitions';
-
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 export async function fetchGames() {
   try {
-    const data = await sql<Game[]>`
+    const [data] = await db.query(`
       SELECT * FROM games 
       ORDER BY created_at DESC
-    `;
-    return data;
+    `);
+    return data as Game[];
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch games data.');
@@ -18,27 +16,33 @@ export async function fetchGames() {
 
 export async function fetchGameById(id: number) {
   try {
-    const game = await sql<Game[]>`
+    const [gameResult] = await db.query(`
       SELECT * FROM games 
-      WHERE id = ${id}
-    `;
+      WHERE id = ?
+    `, [id]);
     
-    const categories = await sql<Category[]>`
+    const game = (gameResult as Game[])[0];
+    
+    const [categoriesResult] = await db.query(`
       SELECT c.* FROM categories c
       JOIN game_categories gc ON c.id = gc.category_id
-      WHERE gc.game_id = ${id}
-    `;
+      WHERE gc.game_id = ?
+    `, [id]);
     
-    const sites = await sql<(Site & { weight: number })[]>`
+    const categories = categoriesResult as Category[];
+    
+    const [sitesResult] = await db.query(`
       SELECT s.*, sg.weight 
       FROM sites s
       JOIN site_games sg ON s.id = sg.site_id
-      WHERE sg.game_id = ${id}
+      WHERE sg.game_id = ?
       ORDER BY sg.weight DESC
-    `;
+    `, [id]);
+    
+    const sites = sitesResult as (Site & { weight: number })[];
     
     return {
-      ...game[0],
+      ...game,
       categories: categories,
       sites: sites
     };
@@ -53,34 +57,34 @@ export async function fetchGamesWithParams(query: string, currentPage: number) {
   try {
     const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
-    const games = await sql<(Game & { sites_count: number })[]>`
+    const [gamesResult] = await db.query(`
       SELECT 
         games.*,
         COUNT(site_games.site_id) as sites_count
       FROM games
       LEFT JOIN site_games ON games.id = site_games.game_id
-      WHERE games.name ILIKE ${`%${query}%`}
+      WHERE games.name LIKE ?
       GROUP BY games.id
       ORDER BY games.created_at DESC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-    `;
+      LIMIT ? OFFSET ?
+    `, [`%${query}%`, ITEMS_PER_PAGE, offset]);
 
-    const totalGames = await sql`
-      SELECT COUNT(*)
+    const [totalGamesResult] = await db.query(`
+      SELECT COUNT(*) as count
       FROM games
-      WHERE name ILIKE ${`%${query}%`}
-    `;
+      WHERE name LIKE ?
+    `, [`%${query}%`]);
 
-    const gamesArray = Array.isArray(games) ? games : [];
+    const games = gamesResult as any[];
     
-    const gamesWithSiteCount = gamesArray.map(game => ({
+    const gamesWithSiteCount = games.map(game => ({
       ...game,
       sitesCount: Number(game.sites_count || 0)
     }));
 
     return {
       games: gamesWithSiteCount,
-      totalPages: Math.ceil(Number(totalGames?.[0]?.count || 0) / ITEMS_PER_PAGE)
+      totalPages: Math.ceil(Number((totalGamesResult as any[])[0]?.count || 0) / ITEMS_PER_PAGE)
     };
   } catch (error) {
     console.error('Database Error:', error);
@@ -91,13 +95,13 @@ export async function fetchGamesWithParams(query: string, currentPage: number) {
 export async function fetchGamesPages(query: string) {
   const ITEMS_PER_PAGE = 10;
   try {
-    const data = await sql`
-      SELECT COUNT(*)
+    const [data] = await db.query(`
+      SELECT COUNT(*) as count
       FROM games
-      WHERE name ILIKE ${`%${query}%`}
-    `;
+      WHERE name LIKE ?
+    `, [`%${query}%`]);
 
-    const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(Number((data as any[])[0].count) / ITEMS_PER_PAGE);
     return totalPages;
   } catch (error) {
     console.error('Database Error:', error);

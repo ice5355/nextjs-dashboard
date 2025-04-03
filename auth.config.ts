@@ -10,11 +10,11 @@ export const authConfig = {
       const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
 
       // 如果是 seed 或 query 路由，直接允许访问 测试使用 发布时注销
-      const isSeedRoute = nextUrl.pathname === '/seed';
-      const isQueryRoute = nextUrl.pathname === '/query';
-      if (isSeedRoute || isQueryRoute) {
-        return true;
-      }
+      // const isSeedRoute = nextUrl.pathname === '/seed';
+      // const isQueryRoute = nextUrl.pathname === '/query';
+      // if (isSeedRoute || isQueryRoute) {
+      //   return true;
+      // }
 
       if (isOnDashboard) {
         if (isLoggedIn) return true;

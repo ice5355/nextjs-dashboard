@@ -8,9 +8,13 @@ import Link from 'next/link';
 import {
   GlobeAltIcon,
   DocumentTextIcon,
-  PuzzlePieceIcon,
+  ComputerDesktopIcon,
+  CheckIcon,
+  XMarkIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import { useFormStatus } from 'react-dom';
+import { useState, useRef, useEffect } from 'react';
 
 // 创建提交按钮组件来处理 loading 状态
 function SubmitButton({ isEdit }: { isEdit: boolean }) {
@@ -38,6 +42,40 @@ export function SiteForm({
   // 根据是否有 site 来决定使用哪个 action
   const action = site ? updateSite.bind(null, site.id) : createSite;
   const [state, dispatch] = useActionState(action, initialState);
+  
+  // 为游戏复选框添加引用数组
+  const gameCheckboxRefs = useRef<(HTMLInputElement | null)[]>([]);
+  
+  // 初始化引用数组
+  useEffect(() => {
+    gameCheckboxRefs.current = gameCheckboxRefs.current.slice(0, games.length);
+  }, [games.length]);
+  
+  // 全选功能
+  const selectAll = () => {
+    gameCheckboxRefs.current.forEach(checkbox => {
+      if (checkbox) checkbox.checked = true;
+    });
+  };
+  
+  // 全不选功能
+  const deselectAll = () => {
+    gameCheckboxRefs.current.forEach(checkbox => {
+      if (checkbox) checkbox.checked = false;
+    });
+  };
+  
+  // 反选功能
+  const invertSelection = () => {
+    gameCheckboxRefs.current.forEach(checkbox => {
+      if (checkbox) checkbox.checked = !checkbox.checked;
+    });
+  };
+  
+  // 设置ref的回调函数
+  const setCheckboxRef = (el: HTMLInputElement | null, index: number) => {
+    gameCheckboxRefs.current[index] = el;
+  };
 
   return (
     <form action={dispatch}>
@@ -46,7 +84,7 @@ export function SiteForm({
           <>
             {/* 网站名称 */}
             <div className="mb-4">
-              <label htmlFor="name" className="mb-2 block text-sm font-medium">
+              <label htmlFor="name" className="mb-2 block text-sm font-bold">
                 网站名称
               </label>
               <div className="relative">
@@ -73,7 +111,7 @@ export function SiteForm({
 
             {/* 网站链接 */}
             <div className="mb-4">
-              <label htmlFor="url" className="mb-2 block text-sm font-medium">
+              <label htmlFor="url" className="mb-2 block text-sm font-bold">
                 网站链接
               </label>
               <div className="relative">
@@ -102,12 +140,37 @@ export function SiteForm({
 
         {/* 关联游戏 */}
         <fieldset className="mb-4">
-          <legend className="mb-2 block text-sm font-medium">
-            关联游戏
-          </legend>
+          <div className="flex justify-between items-center mb-2">
+            <legend className="block text-sm font-bold">
+              关联游戏
+            </legend>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={selectAll}
+                className="px-2 py-1 bg-gray-200 text-xs rounded hover:bg-gray-300 flex items-center gap-1"
+              >
+                <CheckIcon className="h-3 w-3" /> 全选
+              </button>
+              <button
+                type="button"
+                onClick={deselectAll}
+                className="px-2 py-1 bg-gray-200 text-xs rounded hover:bg-gray-300 flex items-center gap-1"
+              >
+                <XMarkIcon className="h-3 w-3" /> 全不选
+              </button>
+              <button
+                type="button"
+                onClick={invertSelection}
+                className="px-2 py-1 bg-gray-200 text-xs rounded hover:bg-gray-300 flex items-center gap-1"
+              >
+                <ArrowPathIcon className="h-3 w-3" /> 反选
+              </button>
+            </div>
+          </div>
           <div className="rounded-md border border-gray-200 bg-white px-[14px] py-3">
             <div className="space-y-3">
-              {games.map((game) => {
+              {games.map((game, index) => {
                 const siteGame = siteGames?.find(sg => sg.game_id === game.id);
                 return (
                   <div key={game.id} className="flex items-center gap-4">
@@ -119,12 +182,13 @@ export function SiteForm({
                         value={game.id}
                         defaultChecked={!!siteGame}
                         className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-gray-600 focus:ring-0 focus:ring-offset-0"
+                        ref={el => setCheckboxRef(el, index)}
                       />
                       <label
                         htmlFor={`game-${game.id}`}
                         className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600"
                       >
-                        {game.name} <PuzzlePieceIcon className="h-4 w-4" />
+                        {game.name} <ComputerDesktopIcon className="h-4 w-4" />
                       </label>
                     </div>
                     <div className="flex items-center gap-2">

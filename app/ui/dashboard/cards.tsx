@@ -1,10 +1,6 @@
 import {
-  BanknotesIcon,
-  ClockIcon,
-  UserGroupIcon,
-  InboxIcon,
   GlobeAltIcon,
-  PuzzlePieceIcon,
+  ComputerDesktopIcon,
   TagIcon,
 } from '@heroicons/react/24/outline';
 import { lusitana } from '@/app/ui/fonts';
@@ -12,12 +8,8 @@ import { fetchSiteGameCategoryData } from '@/app/lib/datas/dashboard';
 
 const iconMap = {
   sites: GlobeAltIcon,
-  games: PuzzlePieceIcon,
+  games: ComputerDesktopIcon,
   categories: TagIcon,
-  collected: BanknotesIcon,
-  customers: UserGroupIcon,
-  pending: ClockIcon,
-  invoices: InboxIcon,
 };
 
 export default async function CardWrapper() {
@@ -43,7 +35,7 @@ export function Card({
 }: {
   title: string;
   value: number | string;
-  type: 'invoices' | 'customers' | 'pending' | 'collected' | 'sites' | 'games' | 'categories';
+  type: 'sites' | 'games' | 'categories';
 }) {
   const Icon = iconMap[type];
 
