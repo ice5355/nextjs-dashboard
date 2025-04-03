@@ -5,8 +5,6 @@ import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 
-export const runtime = 'edge';
-
 
 export async function authenticate(
     prevState: string | undefined,

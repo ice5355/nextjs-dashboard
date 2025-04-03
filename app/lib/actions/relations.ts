@@ -2,7 +2,7 @@
 
 import db from '@/app/lib/db';
 import { revalidatePath } from 'next/cache';
-export const runtime = 'edge';
+
 export async function updateGameSites(
   gameId: number,
   relations: Array<{ game_id: number; site_id: number; weight: number }>
