@@ -1,0 +1,12 @@
+{
+  "main": ".open-next/worker.js",
+  "name": "nexjs-dashboard",
+  "compatibility_date": "2025-04-02",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  }
+}
